@@ -1,60 +1,63 @@
-# === 1. BUILD STAGE ===
-# Use a slim Node image for building
+# Dockerfile
+
+# =========================================================
+# 1. BUILD STAGE (Generates the Next.js and Prisma Client code)
+# =========================================================
 FROM node:20-alpine AS builder
+
+# Set environment variable for build process
+ENV NODE_ENV production
 
 # Set the working directory
 WORKDIR /app
 
 # Copy package.json and lock files first to leverage Docker cache
-# COPY package.json yarn.lock package-lock.json* ./
-COPY package.json package-lock.json ./
+# Assuming you are using npm based on previous logs
+COPY package.json package-lock.json* ./
 
-# Install dependencies (use npm ci for cleaner installs if using npm)
-# Since your project uses React and Next.js, we assume you might have lucide-react, etc.
+# Install dependencies (development and production)
 RUN npm install
+
+# Copy the Prisma schema and run generate
+# The 'prisma generate' command must run before 'next build'
+COPY prisma ./prisma
+RUN npx prisma generate
 
 # Copy the rest of the application code
 COPY . .
 
-# Next.js specific build command
-# This creates the optimized production build in the .next folder
+# Run the Next.js production build command
 RUN npm run build
 
-# --- Separate dependencies for static/public files ---
-# Next.js recommends running the build command in a separate stage 
-# if you want to optimize caching of static files. 
-# However, for simplicity and common use, we copy them in the final stage.
 
-
-# === 2. PRODUCTION DEPENDENCIES STAGE ===
-# A small stage dedicated only to the node_modules required for runtime
+# =========================================================
+# 2. RUNNER STAGE (Minimal image for serving the application)
+# =========================================================
 FROM node:20-alpine AS runner
 
-# Set environment variables for Next.js production
+# Set environment variables for runtime
 ENV NODE_ENV production
-# Set the port Next.js will listen on (CapRover usually uses port 80 or 3000)
+# Next.js listens on this port. CapRover will proxy to it.
 ENV PORT 3000
 
 # Set the working directory
 WORKDIR /app
 
-# 1. Copy necessary files from the builder stage
-# Copy the compiled production build (.next)
-COPY --from=builder /app/.next ./.next
-
-# Copy package.json to ensure 'npm start' works
-COPY --from=builder /app/package.json ./package.json
-
-# Copy public assets (like /public/cinema.png)
-COPY --from=builder /app/public ./public
-
-# Copy node_modules required for runtime (usually just production dependencies)
-# We install only production dependencies to keep the image slim
+# Install only production dependencies
+# This is necessary because some packages (like Prisma Client) rely on them
+COPY package.json ./package.json
 RUN npm install --omit=dev
 
-# We do not expose the port here; it's done by the runtime environment (CapRover/Hetzner)
-# EXPOSE 3000
+# Copy essential runtime files from the builder stage:
+# 1. The compiled Next.js build output
+COPY --from=builder /app/.next ./.next
+# 2. Public assets (e.g., /public/cinema.png)
+COPY --from=builder /app/public ./public
+# 3. Generated Prisma Client files and schema
+# The client is located in node_modules/.prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# The schema file is needed at runtime for certain operations/migrations
+COPY --from=builder /app/prisma ./prisma
 
 # The command to run the application
-# Next.js starts the production server
 CMD ["npm", "start"]
