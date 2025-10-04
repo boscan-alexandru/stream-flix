@@ -6,7 +6,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package.json and lock files first to leverage Docker cache
-COPY package.json yarn.lock package-lock.json* ./
+# COPY package.json yarn.lock package-lock.json* ./
+COPY package.json package-lock.json ./
 
 # Install dependencies (use npm ci for cleaner installs if using npm)
 # Since your project uses React and Next.js, we assume you might have lucide-react, etc.
