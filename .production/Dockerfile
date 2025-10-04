@@ -50,6 +50,9 @@ EXPOSE 3000
 # =========================================================
 FROM node:slim AS runner
 
+RUN apt-get update -y && apt-get install -y openssl
+
+
 # Set environment variables for Next.js runtime
 ENV NODE_ENV production
 ENV PORT 3000
