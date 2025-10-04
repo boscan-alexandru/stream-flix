@@ -4,7 +4,7 @@
 | :----------------- | :------------------------------- | :--------------- |
 | Active Development | Next.js 14, Tailwind CSS, Hls.js | Docker, CapRover |
 
-## 🌟 Cinematic Hero
+## 🌟 Cinematic Hero section
 
 StreamFlix is a modern, self-hosted video streaming platform built with **Next.js 14 (App Router)**. It features an admin panel for managing movies, a sleek, user-friendly frontend, and HLS streaming capabilities. The entire application is optimized for containerization and quick deployment.
 
