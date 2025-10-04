@@ -1,0 +1,34 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Change to "postgresql", "mysql", etc. if needed
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  // Core Movie Identification
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique // Used for dynamic routing (e.g., /stream/my-movie-slug)
+  
+  // Display & Content Data
+  coverPhoto  String   // Link to cover image
+  subtitles   String?  // Link to subtitles file (optional)
+
+  // Timing for Skipping Functionality (Stored in seconds)
+  lengthTotal Int
+  lengthIntro Int
+  lengthCredits Int
+
+  // Streaming Data (Kept separate for ease of token updates)
+  streamDomain String   // e.g., "https://fin-3dg-b1.i8yz83pn.com"
+  streamPath   String   // e.g., "07/03525/0k71n8rdyv95_x"
+  streamTokens String   // The full query string: "t=...&s=...&e=..."
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
