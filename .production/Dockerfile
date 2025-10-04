@@ -14,49 +14,36 @@ RUN apt-get update -y \
 WORKDIR /app
 
 # --- Copy all source code and config files ---
-# This includes package.json, prisma, next.config.js, etc.
 COPY . .
 
-# --- Build Arguments/Environment Variables ---
-# NOTE: ARG values are for build-time use only. ENV sets runtime variables.
-# We set all required ENV variables based on ARGs or hardcoding production defaults.
-# These ARGs should be passed during the 'docker build' command if needed.
-ARG HOSTNAME
-ARG NODE_ENV="production"
-# Assuming these are passed via CapRover/docker-compose for runtime
-ARG DATABASE_URL
-ARG JWT_SECRET
-ARG MINIO_ENDPOINT
-ARG MINIO_USE_SSL
-# ... include all other ARGs listed in your old file ...
+# --- Minimal Environment Variables ---
+# Only define the two variables requested by the user.
+# NEXT_PUBLIC variables are for client-side code, DATABASE_URL is for server/Prisma.
+ARG NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+ARG DATABASE_URL="file:./dev.db" 
 
-ENV HOSTNAME=$HOSTNAME
-ENV NODE_ENV=$NODE_ENV
+# Set environment variables in build
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 ENV DATABASE_URL=$DATABASE_URL
-# ... include all other ENV variables from your old file ...
+ENV NODE_ENV="production"
 ENV PORT=3000
 
 # Install dependencies using pnpm
-# Using a cache bust (as the COPY . . above is the cache buster)
 RUN pnpm install --frozen-lockfile
 
-# --- CRITICAL FIXES FOR PRISMA AND TAILWIND ---
-# 1. Generate Prisma Client (MUST run BEFORE build and migration)
+# Prisma and Build Steps
+# NOTE: Using file:./dev.db means the database is local to the container and reset on each deploy.
+# This is usually fine for testing but not for production unless you're using persistent storage.
 RUN pnpm prisma generate
-
-# 2. Run migrations (CapRover will need database access here)
 RUN pnpm prisma migrate deploy
-
-# 3. Run seed script
 RUN pnpm run seed
-
-# 4. Disable Next.js telemetry
 RUN pnpm next telemetry disable
 
 # Build the Next.js application
-# This is where the Tailwind/PostCSS modules are required and compiled
 RUN pnpm run build
 
+# Expose the port
+EXPOSE 3000
 
 # =========================================================
 # 2. RUNNER STAGE (Minimal environment for runtime)
@@ -70,21 +57,21 @@ ENV PORT 3000
 # Set the working directory
 WORKDIR /app
 
-# Install only production dependencies for runtime security and size
-# Using the lockfile from the builder stage
+# CRITICAL FIX: Install pnpm globally in the runner stage
+RUN npm install -g pnpm
+
+# Copy package files
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+
+# Install only production dependencies for runtime
 RUN pnpm install --prod --frozen-lockfile
 
 # Copy essential runtime files from the builder stage:
-# 1. The compiled Next.js build output (standalone mode server + .next)
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-# 2. Prisma schema (needed by the client at runtime for some operations)
 COPY --from=builder /app/prisma ./prisma
 
 # The command to run the application using the standalone server script
-# Note: Your package.json uses "start_prod": "node .next/standalone/server.js"
-# We must use the script location relative to the final WORKDIR
 CMD ["node", "server.js"]
