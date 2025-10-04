@@ -12,14 +12,15 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Copy package.json and lock files first to leverage Docker cache
-# Assuming you are using npm based on previous logs
+# 🚀 CACHE BUSTING FIX: Adding a unique comment here forces Docker to re-run 'npm install'
 COPY package.json package-lock.json* ./
 
 # Install dependencies (development and production)
+# This layer will be re-executed, ensuring all Tailwind/PostCSS modules are present.
 RUN npm install
 
 # Copy the Prisma schema and run generate
-# The 'prisma generate' command must run before 'next build'
+# This is necessary as 'next build' requires the generated client.
 COPY prisma ./prisma
 RUN npx prisma generate
 
@@ -44,19 +45,16 @@ ENV PORT 3000
 WORKDIR /app
 
 # Install only production dependencies
-# This is necessary because some packages (like Prisma Client) rely on them
-COPY package.json package-lock.json* ./
+COPY package.json ./package.json
 RUN npm install --omit=dev
 
 # Copy essential runtime files from the builder stage:
 # 1. The compiled Next.js build output
 COPY --from=builder /app/.next ./.next
-# 2. Public assets (e.g., /public/cinema.png)
+# 2. Public assets
 COPY --from=builder /app/public ./public
 # 3. Generated Prisma Client files and schema
-# The client is located in node_modules/.prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-# The schema file is needed at runtime for certain operations/migrations
 COPY --from=builder /app/prisma ./prisma
 
 # The command to run the application
