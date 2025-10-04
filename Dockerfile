@@ -5,8 +5,6 @@
 # =========================================================
 FROM node:20-alpine AS builder
 
-RUN apk update && apk upgrade
-
 # Set environment variable for build process
 ENV NODE_ENV production
 
@@ -14,7 +12,7 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Copy package.json and lock files first to leverage Docker cache
-# 🚀 This line is still crucial for cache control and dependency visibility
+# 🚀 CACHE BUSTING FIX: Forcing a new install after local cleanup
 COPY package.json package-lock.json* ./
 
 # Install ALL dependencies (dev and prod) to ensure build tools are available
@@ -27,11 +25,6 @@ RUN npx prisma generate
 # Copy the rest of the application code
 COPY . .
 
-# 🚀 NEW STEP: Re-install dependencies needed for the build (safeguard)
-# This step often fixes path resolution issues specific to Next.js builds in Alpine containers.
-# We ensure the build environment is completely ready before calling next build.
-RUN npm install --only=dev
-
 # Run the Next.js production build command
 RUN npm run build
 
@@ -40,8 +33,6 @@ RUN npm run build
 # 2. RUNNER STAGE (Minimal image for serving the application)
 # =========================================================
 FROM node:20-alpine AS runner
-
-RUN apk update && apk upgrade
 
 # Set environment variables for runtime
 ENV NODE_ENV production
