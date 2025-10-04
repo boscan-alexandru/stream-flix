@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 🚀 CRITICAL: Enable Next.js standalone output for Docker
+  output: "standalone",
   async rewrites() {
     return [
       {
