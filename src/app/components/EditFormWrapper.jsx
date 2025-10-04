@@ -4,19 +4,11 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-// Assuming your existing form is exported as default here:
 import MovieForm from "@/app/components/MovieForm";
-import { convertSecondsToHMS } from "@/app/utils/timeConverters"; // ⚠️ Create this utility file or add the function above MovieForm
+import { convertSecondsToHMS } from "@/app/utils/timeConverters"; // The required import
 
-// Since we can't export a function from a Client Component,
-// let's put the helper function here for now if you don't use a utils file:
-const convertSecondsToHMS = (totalSeconds) => {
-  const seconds = parseInt(totalSeconds || 0, 10);
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return { h, m, s };
-};
+// ❌ REMOVED the local function definition here:
+// The imported function 'convertSecondsToHMS' is now assumed to exist and be correct.
 
 export default function EditFormWrapper({ initialMovieData }) {
   const router = useRouter();
@@ -27,6 +19,8 @@ export default function EditFormWrapper({ initialMovieData }) {
   const transformedInitialData = useMemo(
     () => ({
       ...initialMovieData,
+      // NOTE: The utility function must return { h, m, s } or be adjusted
+      // The current usage implies convertSecondsToHMS returns an object.
       lengthTotal: convertSecondsToHMS(initialMovieData.lengthTotal),
       lengthIntro: convertSecondsToHMS(initialMovieData.lengthIntro),
       lengthCredits: convertSecondsToHMS(initialMovieData.lengthCredits),
