@@ -1,14 +1,10 @@
 /* src/app/globals.css */
 
-/* 🚀 FINAL CORRECTED TAILWIND V4 DIRECTIVES */
-/* 1. Base styles (Preflight) */
-@import "tailwindcss/preflight";
-/* 2. Utility classes (includes components and layers from v3) */
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ------------------------------------------- */
 
-/* 3. CUSTOM CSS VARIABLES AND THEME */
+/* Your custom CSS follows */
 :root {
   --background: #ffffff;
   --foreground: #171717;
