@@ -45,7 +45,7 @@ WORKDIR /app
 
 # Install only production dependencies
 # This is necessary because some packages (like Prisma Client) rely on them
-COPY package.json ./package.json
+COPY package.json package-lock.json* ./
 RUN npm install --omit=dev
 
 # Copy essential runtime files from the builder stage:
