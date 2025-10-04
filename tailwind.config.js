@@ -1,11 +1,55 @@
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require("tailwind-capitalize-first-letter"),
+    // ... other plugins
+  ],
+  // ADD THIS SAFELIST SECTION
+  safelist: [
+    "cursor-auto",
+    "cursor-default",
+    "cursor-pointer",
+    "cursor-wait",
+    "cursor-text",
+    "cursor-move",
+    "cursor-help",
+    "cursor-not-allowed",
+    "cursor-none",
+    "cursor-context-menu",
+    "cursor-progress",
+    "cursor-cell",
+    "cursor-crosshair",
+    "cursor-vertical-text",
+    "cursor-alias",
+    "cursor-copy",
+    "cursor-no-drop",
+    "cursor-grab",
+    "cursor-grabbing",
+    "cursor-all-scroll",
+    "cursor-col-resize",
+    "cursor-row-resize",
+    "cursor-n-resize",
+    "cursor-e-resize",
+    "cursor-s-resize",
+    "cursor-w-resize",
+    "cursor-ne-resize",
+    "cursor-nw-resize",
+    "cursor-se-resize",
+    "cursor-sw-resize",
+    "cursor-ew-resize",
+    "cursor-ns-resize",
+    "cursor-nesw-resize",
+    "cursor-nwse-resize",
+    "cursor-zoom-in",
+    "cursor-zoom-out",
+  ],
 };
