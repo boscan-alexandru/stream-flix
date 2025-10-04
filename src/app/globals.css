@@ -1,15 +1,17 @@
-@import "tailwindcss";
+/* src/app/globals.css */
 
+/* 🚀 FINAL CORRECTED TAILWIND V4 DIRECTIVES */
+/* 1. Base styles (Preflight) */
+@import "tailwindcss/preflight";
+/* 2. Utility classes (includes components and layers from v3) */
+@tailwind utilities;
+
+/* ------------------------------------------- */
+
+/* 3. CUSTOM CSS VARIABLES AND THEME */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +22,7 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
