@@ -18,6 +18,7 @@
     "prisma": "^6.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "socks-proxy-agent": "^8.0.5",
     "tailwind-capitalize-first-letter": "^1.0.4"
   },
   "devDependencies": {
