@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 // Removed: dynamic import of EditMovieModal, convertSecondsToHMS
 
-const DEFAULT_COVER_IMAGE = "/default-cover.png";
+const DEFAULT_COVER_IMAGE = "/not-found.png";
 
 // Helper to convert total seconds back to a simple H:M:S format for display
 const formatTime = (totalSeconds) => {

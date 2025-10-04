@@ -12,7 +12,7 @@ const EditMovieModal = dynamic(() => import("./EditMovieModal"), {
   ssr: false,
 });
 
-const DEFAULT_COVER_IMAGE = "/default-cover.png";
+const DEFAULT_COVER_IMAGE = "/not-found.png";
 const COVER_IMAGE_SIZE = 120;
 
 // Helper to convert total seconds back to a simple H:M:S format for display
