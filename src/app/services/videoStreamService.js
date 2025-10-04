@@ -13,6 +13,9 @@ export async function fetchVideoStreamUrl(externalId) {
   // You need the full path, which likely includes the externalId and the security tokens
   const fullStreamFetchUrl = `${baseBlockedDomain}/hls2/.../${externalId}/master.m3u8?t=...`;
 
+  console.log(`[PROXY DEBUG] Attempting to fetch URL: ${fullStreamFetchUrl}`);
+  console.log(`[PROXY DEBUG] Using agent: ${proxyAgent ? "SOCKS5" : "Direct"}`);
+
   if (!proxyAgent) {
     console.warn(
       "VIDEO_PROXY_URL is not set. Fetching stream directly (may be blocked)."
@@ -34,6 +37,9 @@ export async function fetchVideoStreamUrl(externalId) {
     const response = await fetch(fullStreamFetchUrl, fetchOptions);
 
     if (!response.ok) {
+      console.error(
+        `[PROXY DEBUG] External fetch failed with status: ${response.status}`
+      );
       // If the proxy fails or the host still blocks
       throw new Error(
         `External stream fetch failed with status: ${response.status}`
